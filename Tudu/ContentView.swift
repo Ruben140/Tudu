@@ -11,8 +11,8 @@ struct ContentView: View {
     @StateObject var viewModel = TodoViewModel()
     @State private var newTodoTitle: String = ""
     @State private var newDeadlineDate: Date = Date()
-    @State private var isEditingDeadlineDate: Bool = false
-    @State private var selectedItem: TodoItem?
+    @State private var editingItemID: UUID? = nil
+    @State private var editingDateItemID: UUID? = nil
     
     var body: some View {
         NavigationView {
@@ -39,48 +39,65 @@ struct ContentView: View {
                 }
                 
                 List {
-                    ForEach(viewModel.items) {
-                        item in
-                            HStack{
-                                Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
-                                    .onTapGesture {
-                                        viewModel.toggleCompletion(of: item)
+                    ForEach(viewModel.items, id: \.id) { item in
+                        HStack {
+                            Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                                .onTapGesture {
+                                    viewModel.toggleCompletion(of: item)
+                                }
+                            
+                            VStack(alignment: .leading) {
+                                if editingItemID == item.id {
+                                    TextField("Edit title", text: Binding(
+                                        get: { item.title },
+                                        set: { newValue in
+                                            viewModel.updateTitle(for: item, newTitle: newValue)
+                                        }
+                                    ))
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .onSubmit {
+                                        editingItemID = nil
                                     }
-                                
-                                VStack(alignment: .leading){
+                                } else {
                                     Text(item.title)
                                         .strikethrough(item.isCompleted)
                                         .foregroundColor(item.isCompleted ? .gray : .black)
-                                    
-                                    HStack {
-                                        Text("Due:\(formattedDate(item.deadlineDate))")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                        Spacer()
-                                        Button("Edit") {
-                                            selectedItem = item
-                                            isEditingDeadlineDate = true
+                                        .onTapGesture {
+                                            editingItemID = item.id
                                         }
-                                        .font(.caption)
-                                        .buttonStyle(BorderlessButtonStyle())
-                                    }
                                 }
                                 
-                                Spacer()
+                                if editingDateItemID == item.id {
+                                    // Show the DatePicker if we're editing this item's date
+                                    DatePicker("Select new deadline", selection: Binding(
+                                        get: { item.deadlineDate },
+                                        set: { newDate in
+                                            viewModel.updateItem(item: item, newTitle: item.title, newDeadlineDate: newDate)
+                                            editingDateItemID = nil // Stop editing after selecting a date
+                                        }
+                                    ), displayedComponents: .date)
+                                    .datePickerStyle(GraphicalDatePickerStyle())
+                                    .padding(.top, 4)
+                                } else {
+                                    // Show the due date text and allow tap to start editing
+                                    Text("Due: \(formattedDate(item.deadlineDate))")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                        .onTapGesture {
+                                            editingDateItemID = item.id // Start editing the date
+                                        }
+                                }
+                            }
+                            
+                            Spacer()
                         }
                     }
-                    .onDelete(perform:
-                        viewModel.deleteItem)
-                    }
+                    .onDelete(perform: viewModel.deleteItem)
                 }
+            }
             .navigationTitle("Tudu")
             .toolbar {
                 EditButton()
-            }
-            .sheet(isPresented: $isEditingDeadlineDate) {
-                if let selectedItem = selectedItem {
-                    EditDeadlineView(viewModel: viewModel, item: selectedItem, isPresented: $isEditingDeadlineDate)
-                }
             }
         }
     }
@@ -96,36 +113,52 @@ struct EditDeadlineView: View {
     @ObservedObject var viewModel: TodoViewModel
     var item: TodoItem
     @Binding var isPresented: Bool
-    @State private var newDeadlineDate: Date
+    @State private var updatedTitle: String
+    @State private var updatedDeadlineDate: Date
     
     init(viewModel: TodoViewModel, item: TodoItem, isPresented: Binding<Bool>) {
         self.viewModel = viewModel
         self.item = item
-        _newDeadlineDate = State(initialValue: item.deadlineDate)
+        _updatedTitle = State(initialValue: item.title)
+        _updatedDeadlineDate = State(initialValue: item.deadlineDate)
         self._isPresented = isPresented
     }
     
     var body: some View {
-        VStack {
-            Text("Edit Deadline")
-                .font(.headline)
-                .padding()
-            
-            DatePicker("Select deadline date", selection: $newDeadlineDate, displayedComponents: .date)
-                .datePickerStyle(GraphicalDatePickerStyle())
-                .padding()
-            
-            Button("Save") {
-                viewModel.updateDeadline(for: item, newDeadlineDate: newDeadlineDate)
-                isPresented = false
+        NavigationView {
+            VStack {
+                Text("Edit TODO")
+                    .font(.headline)
+                    .padding()
+                
+                TextField("Edit task title", text: $updatedTitle)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding()
+                
+                DatePicker("Select new deadline", selection: $updatedDeadlineDate, displayedComponents: .date)
+                    .datePickerStyle(GraphicalDatePickerStyle())
+                    .padding()
+                
+                Spacer()
+                
+                HStack{
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                    .padding()
+                    
+                    Spacer()
+                    
+                    Button("Save") {
+                        viewModel.updateItem(item: item, newTitle: updatedTitle, newDeadlineDate: updatedDeadlineDate)
+                        isPresented = false
+                    }
+                    .padding()
+                    .buttonStyle(.borderedProminent)
+                }
             }
             .padding()
-            .buttonStyle(.borderedProminent)
-            
-            Button("Cancel"){
-                isPresented = false
-            }
-            .padding(.top, 10)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

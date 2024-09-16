@@ -12,7 +12,7 @@ class TodoViewModel: ObservableObject {
     
     // Add a TODO
     func addItem(title: String, deadline: Date) {
-        let newItem = TodoItem(title: title, deadlineDate: deadline)
+        let newItem = TodoItem(id: UUID(), title: title, deadlineDate: deadline, isCompleted: false)
         items.append(newItem)
     }
     
@@ -28,9 +28,16 @@ class TodoViewModel: ObservableObject {
         }
     }
     
-    // Update the deadline of a TODO
-    func updateDeadline(for item: TodoItem, newDeadlineDate: Date){
+    func updateTitle(for item: TodoItem, newTitle: String){
+        if let index = items.firstIndex(where: { $0.id == item.id }){
+            items[index].title = newTitle
+        }
+    }
+    
+    // Update todo title and deadline
+    func updateItem(item: TodoItem, newTitle: String, newDeadlineDate: Date){
         if let index = items.firstIndex(where: { $0.id == item.id }) {
+            items[index].title = newTitle
             items[index].deadlineDate = newDeadlineDate
         }
     }

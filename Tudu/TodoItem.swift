@@ -8,8 +8,8 @@
 import Foundation
 
 struct TodoItem: Identifiable {
-    var id = UUID()
+    let id: UUID
     var title: String
-    var isCompleted: Bool = false
     var deadlineDate: Date
+    var isCompleted: Bool
 }
