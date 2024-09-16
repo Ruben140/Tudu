@@ -8,11 +8,21 @@
 import Foundation
 
 class TodoViewModel: ObservableObject {
-    @Published var items: [TodoItem] = []
+    @Published var items: [TodoItem] = []{
+        didSet {
+            saveItems()
+        }
+    }
+    
+    private let itemsKey = "todoItems"
+    
+    init(){
+        loadItems()
+    }
     
     // Add a TODO
-    func addItem(title: String, deadline: Date) {
-        let newItem = TodoItem(id: UUID(), title: title, deadlineDate: deadline, isCompleted: false)
+    func addItem(title: String, deadline: Date, priority: Int) {
+        let newItem = TodoItem(id: UUID(), title: title, deadlineDate: deadline, isCompleted: false, priority: priority)
         items.append(newItem)
     }
     
@@ -28,17 +38,42 @@ class TodoViewModel: ObservableObject {
         }
     }
     
-    func updateTitle(for item: TodoItem, newTitle: String){
-        if let index = items.firstIndex(where: { $0.id == item.id }){
+    // Update todo title/text
+    func updateTitle(for item: TodoItem, newTitle: String) {
+        if let index = items.firstIndex(where: { $0.id == item.id }) {
             items[index].title = newTitle
         }
     }
-    
-    // Update todo title and deadline
-    func updateItem(item: TodoItem, newTitle: String, newDeadlineDate: Date){
+
+    // Update todo deadline
+    func updateDeadline(for item: TodoItem, newDate: Date) {
         if let index = items.firstIndex(where: { $0.id == item.id }) {
-            items[index].title = newTitle
-            items[index].deadlineDate = newDeadlineDate
+            items[index].deadlineDate = newDate
+        }
+    }
+    
+    // Update todo priority
+    func updatePriority(for item: TodoItem, newPriority: Int){
+        if let index = items.firstIndex(where: { $0.id == item.id }) {
+            items[index].priority = newPriority
+        }
+    }
+    
+    // Save todos to phone
+    private func saveItems() {
+        let encoder = JSONEncoder()
+        if let encodedItems = try? encoder.encode(items){
+            UserDefaults.standard.set(encodedItems, forKey: itemsKey)
+        }
+    }
+    
+    // Load todos from phone
+    private func loadItems() {
+        if let savedItems = UserDefaults.standard.data(forKey: itemsKey) {
+            let decoder = JSONDecoder()
+            if let loadedItems = try? decoder.decode([TodoItem].self, from: savedItems){
+                self.items = loadedItems
+            }
         }
     }
 }

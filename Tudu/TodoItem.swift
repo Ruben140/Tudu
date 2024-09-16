@@ -7,9 +7,10 @@
 
 import Foundation
 
-struct TodoItem: Identifiable {
-    let id: UUID
+struct TodoItem: Identifiable, Codable {
+    var id: UUID = UUID()
     var title: String
     var deadlineDate: Date
     var isCompleted: Bool
+    var priority: Int
 }
