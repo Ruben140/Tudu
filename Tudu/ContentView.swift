@@ -8,14 +8,50 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var viewModel = TodoViewModel()
+    @State private var newTodoTitle: String = ""
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationView {
+            VStack {
+                HStack {
+                    TextField("Enter new todo", text: $newTodoTitle)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                    
+                    Button(action: {if !newTodoTitle.isEmpty {
+                        viewModel.addItem(title: newTodoTitle)
+                        newTodoTitle = ""
+                    }}) {
+                        Image(systemName: "plus")
+                            .font(.title)
+                            .padding()
+                    }
+                }
+                
+                List {
+                    ForEach(viewModel.items) {
+                        item in
+                        HStack{
+                            Image(systemName: item.isCompleted ? "checkmark.circle.fill" : "circle")
+                                .onTapGesture {
+                                    viewModel.toggleCompletion(of: item)
+                                }
+                            
+                            Text(item.title)
+                                .strikethrough(item.isCompleted)
+                                .foregroundColor(item.isCompleted ? .gray : .black)
+                        }
+                    }
+                    .onDelete(perform:
+                        viewModel.deleteItem)
+                    }
+                }
+            .navigationTitle("Tudu")
+            .toolbar {
+                EditButton()
+            }
         }
-        .padding()
     }
 }
 
