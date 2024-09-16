@@ -12,6 +12,7 @@
 		7B6201A52C982E2C00EAE38D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B6201A42C982E2C00EAE38D /* Assets.xcassets */; };
 		7B6201A82C982E2C00EAE38D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B6201A72C982E2C00EAE38D /* Preview Assets.xcassets */; };
 		7B6201AF2C982F8C00EAE38D /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6201AE2C982F8C00EAE38D /* TodoItem.swift */; };
+		7B6201B12C98304900EAE38D /* TodoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6201B02C98304900EAE38D /* TodoViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		7B6201A42C982E2C00EAE38D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B6201A72C982E2C00EAE38D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		7B6201AE2C982F8C00EAE38D /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
+		7B6201B02C98304900EAE38D /* TodoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 				7B6201A42C982E2C00EAE38D /* Assets.xcassets */,
 				7B6201A62C982E2C00EAE38D /* Preview Content */,
 				7B6201AE2C982F8C00EAE38D /* TodoItem.swift */,
+				7B6201B02C98304900EAE38D /* TodoViewModel.swift */,
 			);
 			path = Tudu;
 			sourceTree = "<group>";
@@ -140,6 +143,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B6201B12C98304900EAE38D /* TodoViewModel.swift in Sources */,
 				7B6201A32C982E2A00EAE38D /* ContentView.swift in Sources */,
 				7B6201AF2C982F8C00EAE38D /* TodoItem.swift in Sources */,
 				7B6201A12C982E2A00EAE38D /* TuduApp.swift in Sources */,
